@@ -10,9 +10,17 @@ python run.py                     # uses Claude, needs ANTHROPIC_API_KEY
 
 On Windows, set the key with `$env:ANTHROPIC_API_KEY="..."` in PowerShell.
 
-## What is and isn't proven
-- **Proven by tests:** the loop, the failure handling, the real MCP and RAG connections, and the format of API requests (against a local fake server).
-- **Not proven yet:** that Claude makes good decisions here. `--scripted` follows a fixed script, so no AI is deciding anything. **The live mode has not been run**, because no API key was available where this was built. Run it and read the output before describing this as a working AI agent.
+## Live result with Claude
+I ran `python run.py --trace live_trace.json` with Claude Sonnet on 6 November 2026. In 3 rounds, Claude:
+1. searched the policy twice, listed the files and profiled the report (four tool calls at once)
+2. wrote 8 rules from the policy and ran them, including interest = amount × rate ÷ 100 using the `scale` option
+3. wrote the review
+
+It found all six planted error types, with counts and row numbers matching `../1_mcp_server/answer_key.json`. It said the report must not be sent, and it applied the policy's 1% threshold correctly: 10 of 500 rows (2%) with interest errors makes that a blocking issue, not a warning. No number in its answer was flagged as unsupported. The full step-by-step record is in `live_trace.json`.
+
+**This is one run on one synthetic file.** It shows that the agent works. It does not measure how reliably it works. Running the same task several times, and on files with different errors, would be the next test.
+
+`--scripted` still runs without a key. It follows a fixed script, so no AI is deciding anything in that mode.
 
 ## Failure handling (each has a test)
 | Failure | What happens |

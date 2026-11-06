@@ -126,7 +126,7 @@ class Agent:
                     outputs.append(output)
                 trace.append(
                     {"step": step, "type": "tool", "tool": call["name"], "input": call.get("input", {}),
-                     "is_error": is_error, "output": output[:600]}
+                     "is_error": is_error, "output": output}
                 )
                 result = {"type": "tool_result", "tool_use_id": call["id"], "content": output}
                 if is_error:
