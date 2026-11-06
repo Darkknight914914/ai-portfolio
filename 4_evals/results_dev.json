@@ -1,0 +1,98 @@
+{
+  "faults_planted": 56,
+  "checks_caught": 53,
+  "current_guard_caught": 8,
+  "clean_items_checked": 50,
+  "false_alarms_on_clean": 0,
+  "false_alarm_details": [],
+  "per_fault": {
+    "fake_citation": {
+      "checks_caught": 4,
+      "current_guard_caught": 4,
+      "cases": 4,
+      "missed": []
+    },
+    "no_citation": {
+      "checks_caught": 4,
+      "current_guard_caught": 4,
+      "cases": 4,
+      "missed": []
+    },
+    "wrong_role": {
+      "checks_caught": 4,
+      "current_guard_caught": 0,
+      "cases": 4,
+      "missed": []
+    },
+    "invented_number": {
+      "checks_caught": 4,
+      "current_guard_caught": 0,
+      "cases": 4,
+      "missed": []
+    },
+    "invented_tool_from_ad": {
+      "checks_caught": 4,
+      "current_guard_caught": 0,
+      "cases": 4,
+      "missed": []
+    },
+    "invented_tool_not_in_ad": {
+      "checks_caught": 4,
+      "current_guard_caught": 0,
+      "cases": 4,
+      "missed": []
+    },
+    "inflated_seniority": {
+      "checks_caught": 4,
+      "current_guard_caught": 0,
+      "cases": 4,
+      "missed": []
+    },
+    "summary_invented_number": {
+      "checks_caught": 4,
+      "current_guard_caught": 0,
+      "cases": 4,
+      "missed": []
+    },
+    "summary_invented_tool": {
+      "checks_caught": 4,
+      "current_guard_caught": 0,
+      "cases": 4,
+      "missed": []
+    },
+    "invented_skill": {
+      "checks_caught": 4,
+      "current_guard_caught": 0,
+      "cases": 4,
+      "missed": []
+    },
+    "false_match": {
+      "checks_caught": 4,
+      "current_guard_caught": 0,
+      "cases": 4,
+      "missed": []
+    },
+    "false_missing": {
+      "checks_caught": 4,
+      "current_guard_caught": 0,
+      "cases": 4,
+      "missed": []
+    },
+    "too_many_bullets": {
+      "checks_caught": 4,
+      "current_guard_caught": 0,
+      "cases": 4,
+      "missed": []
+    },
+    "vague_overclaim": {
+      "checks_caught": 1,
+      "current_guard_caught": 0,
+      "cases": 4,
+      "missed": [
+        "Jonas Warehouse",
+        "Sara Marketing",
+        "Tomasz Dev"
+      ]
+    }
+  }
+}

@@ -1,0 +1,9 @@
+[
+  {"rule": "unique", "columns": ["deposit_id"]},
+  {"rule": "iban_checksum", "column": "iban"},
+  {"rule": "in_range", "column": "amount", "min": 0},
+  {"rule": "allowed_values", "column": "currency", "values": ["EUR"]},
+  {"rule": "date_order", "earlier": "booking_date", "later": "maturity_date"},
+  {"rule": "valid_date", "column": "booking_date"},
+  {"rule": "arithmetic", "target": "interest_amount", "left": "amount", "op": "*", "right": "interest_rate_pct", "scale": 0.01}
+]

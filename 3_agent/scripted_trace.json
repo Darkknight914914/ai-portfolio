@@ -1,0 +1,78 @@
+[
+  {
+    "step": 1,
+    "type": "tool",
+    "tool": "search_policy",
+    "input": {
+      "query": "controls for deposit report identifiers iban amounts dates interest"
+    },
+    "is_error": false,
+    "output": "[{\"source\": \"deposit_report_controls#0\", \"text\": \"# Deposit report controls (fictional example policy) Every deposit report must pass these controls before it is shared with a partner bank. ## Identifiers Each deposit_id must appear once only. A duplicate is a blocking issue, because it can cause a deposit to be paid twice. ## Account details Every IBAN must pass the ISO 13616 checksum. A failed checksum\"}, {\"source\": \"deposit_report_controls#1\", \"text\": \"IBAN must pass the ISO 13616 checksum. A failed checksum is a blocking issue. ## Amounts and currency The amount must not be negative. A neg"
+  },
+  {
+    "step": 2,
+    "type": "tool",
+    "tool": "search_policy",
+    "input": {
+      "query": "blocking issues escalation what a review must contain"
+    },
+    "is_error": false,
+    "output": "[{\"source\": \"deposit_report_controls#1\", \"text\": \"IBAN must pass the ISO 13616 checksum. A failed checksum is a blocking issue. ## Amounts and currency The amount must not be negative. A negative amount is a blocking issue. The currency must be EUR. Any other currency is a blocking issue until Treasury confirms it. ## Dates The booking_date must not be later than the maturity_date. Reversed dates\"}, {\"source\": \"escalation#0\", \"text\": \"# Escalation of data-quality issues (fictional example policy) ## Blocking issues If a report has any blocking issue it must not be sent. The report owner fixes "
+  },
+  {
+    "step": 3,
+    "type": "tool",
+    "tool": "check_rules",
+    "input": {
+      "path": "deposit_report.csv",
+      "rules": [
+        {
+          "rule": "unique",
+          "columns": [
+            "deposit_id"
+          ]
+        },
+        {
+          "rule": "iban_checksum",
+          "column": "iban"
+        },
+        {
+          "rule": "in_range",
+          "column": "amount",
+          "min": 0
+        },
+        {
+          "rule": "allowed_values",
+          "column": "currency",
+          "values": [
+            "EUR"
+          ]
+        },
+        {
+          "rule": "date_order",
+          "earlier": "booking_date",
+          "later": "maturity_date"
+        },
+        {
+          "rule": "valid_date",
+          "column": "booking_date"
+        },
+        {
+          "rule": "arithmetic",
+          "target": "interest_amount",
+          "left": "amount",
+          "op": "*",
+          "right": "interest_rate_pct",
+          "scale": 0.01
+        }
+      ]
+    },
+    "is_error": false,
+    "output": "{\n  \"rows_checked\": 500,\n  \"rules_passed\": 1,\n  \"rules_failed\": 6,\n  \"rules_errored\": 0,\n  \"rows_with_issues\": 69,\n  \"results\": [\n    {\n      \"rule\": {\n        \"rule\": \"unique\",\n        \"columns\": [\n          \"deposit_id\"\n        ]\n      },\n      \"status\": \"fail\",\n      \"violations\": 20,\n      \"sample_rows\": [\n        30,\n        31,\n        52,\n        53,\n        81,\n        82,\n        84,\n        85,\n        208,\n        209,\n        211,\n        212,\n        355,\n        356,\n        367,\n        368,\n        475,\n        476,\n        479,\n        480\n      ],\n      \"truncated\": false\n   "
+  },
+  {
+    "step": 4,
+    "type": "answer",
+    "text": "Reviewed deposit_report.csv: 500 rows.\n- unique: 20 violations, e.g. rows [30, 31, 52]\n- iban_checksum: 10 violations, e.g. rows [19, 46, 182]\n- in_range: 10 violations, e.g. rows [163, 205, 234]\n- allowed_values: 10 violations, e.g. rows [156, 174, 178]\n- date_order: 10 violations, e.g. rows [44, 98, 109]\n- arithmetic: 10 violations, e.g. rows [58, 61, 114]\nDo not send: blocking issues found. Report owner fixes the source; raise to the Operations Lead today."
+  }
+]

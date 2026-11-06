@@ -1,0 +1,105 @@
+{
+  "data": "pydoc_data.topics (Python language reference)",
+  "characters": 560058,
+  "vocab": 118,
+  "parameters": 363072,
+  "config": {
+    "vocab_size": 118,
+    "block_size": 64,
+    "n_embd": 96,
+    "n_head": 4,
+    "n_layer": 3,
+    "dropout": 0.1
+  },
+  "steps": 2500,
+  "seconds": 1135,
+  "baselines_val": {
+    "uniform": 4.770684624465665,
+    "bigram": 2.3928824991133535,
+    "trigram": 1.7972077438080971,
+    "5-gram": 1.492112354493415
+  },
+  "final": {
+    "step": 2500,
+    "train": 1.2220237246168049,
+    "val": 1.3676898377948636,
+    "seconds": 1133
+  },
+  "best_val": {
+    "step": 2500,
+    "train": 1.2220237246168049,
+    "val": 1.3676898377948636,
+    "seconds": 1133
+  },
+  "history": [
+    {
+      "step": 0,
+      "train": 4.790818893425564,
+      "val": 4.784116582591134,
+      "seconds": 4
+    },
+    {
+      "step": 250,
+      "train": 2.261337863680422,
+      "val": 2.2446632437114062,
+      "seconds": 117
+    },
+    {
+      "step": 500,
+      "train": 1.8642574841929576,
+      "val": 1.883171969496587,
+      "seconds": 230
+    },
+    {
+      "step": 750,
+      "train": 1.6324207287826706,
+      "val": 1.686348134236974,
+      "seconds": 345
+    },
+    {
+      "step": 1000,
+      "train": 1.499293069299839,
+      "val": 1.5787805951104479,
+      "seconds": 460
+    },
+    {
+      "step": 1250,
+      "train": 1.3972751572943705,
+      "val": 1.4802896416569884,
+      "seconds": 581
+    },
+    {
+      "step": 1500,
+      "train": 1.328977907780432,
+      "val": 1.4439473807577818,
+      "seconds": 692
+    },
+    {
+      "step": 1750,
+      "train": 1.2750404291659871,
+      "val": 1.4092917267924117,
+      "seconds": 804
+    },
+    {
+      "step": 2000,
+      "train": 1.2409776227343676,
+      "val": 1.3814603447949172,
+      "seconds": 915
+    },
+    {
+      "step": 2250,
+      "train": 1.2259792145224297,
+      "val": 1.3700188623636176,
+      "seconds": 1026
+    },
+    {
+      "step": 2500,
+      "train": 1.2220237246168049,
+      "val": 1.3676898377948636,
+      "seconds": 1133
+    }
+  ],
+  "sample": "The setatement\n       else to \"except\".                                                              | This method in the must with \"guard\" is a class result as unlooking\nwill called indisplay result is the looks are from allows, or instance.\n\n   It class a pass can be pattern the line define.   That last return the \"self\" is\n    \"except\".\n\nThe \"clauseError\" annotature is expression.   See **PEP 575**\n\n    C the called instance be instance.  Classes it is scope are intendition of exception evaluatio",
+  "full_val_loss": 1.349862718132082,
+  "full_val_characters": 56000
+}
