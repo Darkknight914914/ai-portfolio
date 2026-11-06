@@ -23,11 +23,13 @@ sys.path.insert(0, str(HERE.parent / "common"))
 SYSTEM = "You are the engine of Factfit, a CV service with one hard rule: never invent experience. Always reply with a single JSON value and nothing else."
 
 
-def tailor_prompt(case: dict) -> str:
+def tailor_prompt(case: dict, version: str = "v1") -> str:
     parsed = case["parsed"]
     facts = confirmed_facts(parsed, case["answers"])
     fact_list = "\n".join(f"[{i}] (role {f['role']}: {parsed['roles'][f['role']]['title']}) {f['text']}" for i, f in facts.items())
     role_list = "\n".join(f"role {i}: {r['title']}, {r['org']}, {r['dates']}" for i, r in enumerate(parsed["roles"]))
+    if version == "v2":
+        return V2_PROMPT.format(role_list=role_list, fact_list=fact_list, cv_text=case["cv_text"], job_ad=case["job_ad"])
     return f"""Tailor a CV to a job ad using ONLY verified information. Reply with only JSON:
 {{"jobTitle": string, "summary": string, "matched": [string], "missing": [string], "roles": [{{"role": number, "bullets": [{{"text": string, "facts": [string]}}]}}], "skills": [string]}}
 
@@ -55,6 +57,45 @@ JOB AD:
 {case["job_ad"]}"""
 
 
+V2_PROMPT = """Tailor a CV to a job ad using ONLY verified information. Reply with only JSON:
+{{"jobTitle": string, "summary": string, "matched": [{{"keyword": string, "facts": [string]}}], "missing": [string], "roles": [{{"role": number, "bullets": [{{"text": string, "facts": [string]}}]}}], "skills": [string]}}
+
+Hard rules:
+- Every bullet must be a rephrasing of one or more CONFIRMED FACTS and list their ids in "facts". Never add tools, numbers, employers, responsibilities or claims that are not in the confirmed facts.
+- You may reorder, shorten and use the job ad's terminology only where the fact truly supports it.
+- Order bullets within each role by relevance to the job ad. At most 5 bullets per role.
+- "jobTitle": the job title from the ad, short.
+- "summary": 2 sentences, built only from confirmed facts and the original CV. Write in the third person without pronouns (never "I", "my", "he" or "she"). Each fact id starts with its role (r0 = role 0, r1 = role 1). Mention a fact only together with the role it comes from, and never move a fact to a different job.
+- "matched": keywords (1-3 words, in the job ad's wording) whose requirement is fully shown by the cited facts. List the supporting fact ids in "facts", or "cv" for the original CV's skills list. If the facts show only part of a requirement (one task within a larger process, using something versus designing or owning it), it is NOT matched: put it in "missing".
+- "missing": short keywords from the job ad's requirements that nothing fully supports. Be strict.
+- "skills": skills from the original CV and confirmed facts only, most relevant to the ad first.
+- Write all CV text in the same language as the job ad.
+
+ROLES:
+{role_list}
+
+CONFIRMED FACTS:
+{fact_list}
+
+ORIGINAL CV (true, may be used for summary and skills):
+{cv_text}
+
+JOB AD:
+{job_ad}"""
+
+
+def v2_guard(case: dict, output: dict) -> dict:
+    """What Factfit's code would do with v2: keep a matched keyword only if it cites
+    a confirmed fact or the CV, then turn the list back into plain strings, so
+    TailorResult and the rest of the app don't change."""
+    ids = set(confirmed_facts(case["parsed"], case["answers"])) | {"cv"}
+    kept = []
+    for item in output.get("matched", []):
+        if isinstance(item, dict) and item.get("keyword") and set(item.get("facts", [])) & ids:
+            kept.append(item["keyword"])
+    return factfit_current_guard(case, {**output, "matched": kept})
+
+
 def parse_json(text: str) -> dict:
     fenced = re.search(r"```(?:json)?\s*([\s\S]*?)```", text)
     raw = fenced.group(1) if fenced else text
@@ -75,7 +116,7 @@ def summarise(rows: list[dict]) -> dict:
     }
 
 
-def main(ask=None, runs: int = 3, out: Path = HERE / "live_outputs.jsonl") -> dict:
+def main(ask=None, runs: int = 3, out: Path = HERE / "live_outputs.jsonl", version: str = "v1") -> dict:
     if ask is None:
         from claude import call_claude, text_of
 
@@ -87,12 +128,13 @@ def main(ask=None, runs: int = 3, out: Path = HERE / "live_outputs.jsonl") -> di
         for case in DEV + HOLDOUT:
             for run in range(runs):
                 try:
-                    output = factfit_current_guard(case, parse_json(ask(tailor_prompt(case))))
+                    raw = parse_json(ask(tailor_prompt(case, version)))
+                    output = v2_guard(case, raw) if version == "v2" else factfit_current_guard(case, raw)
                 except (ValueError, KeyError) as exc:
                     row = {"persona": case["id"], "run": run, "error": str(exc), "bullets": 0, "findings": []}
                 else:
                     found = [vars(f) for f in evaluate(case, output)]
-                    row = {"persona": case["id"], "run": run, "output": output,
+                    row = {"persona": case["id"], "run": run, "version": version, "output": output,
                            "bullets": sum(len(b["bullets"]) for b in output["roles"]), "findings": found}
                 rows.append(row)
                 handle.write(json.dumps(row, ensure_ascii=False) + "\n")
@@ -102,4 +144,8 @@ def main(ask=None, runs: int = 3, out: Path = HERE / "live_outputs.jsonl") -> di
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--runs", type=int, default=3, help="Runs per fictional candidate")
-    print(json.dumps(main(runs=parser.parse_args().runs), indent=2))
+    parser.add_argument("--prompt", choices=["v1", "v2"], default="v1", help="v1 is Factfit's current prompt")
+    parser.add_argument("--out", default=None, help="Where to save outputs")
+    a = parser.parse_args()
+    out = Path(a.out) if a.out else HERE / ("live_outputs.jsonl" if a.prompt == "v1" else "live_outputs_v2.jsonl")
+    print(json.dumps(main(runs=a.runs, out=out, version=a.prompt), indent=2))

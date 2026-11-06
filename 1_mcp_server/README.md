@@ -19,18 +19,12 @@ python make_sample.py
 python -m pytest
 ```
 
-To use it in Claude Desktop, add this to `%APPDATA%\Claude\claude_desktop_config.json`, changing the paths to yours:
-```json
-{
-  "mcpServers": {
-    "plausi": {
-      "command": "python",
-      "args": ["C:\\path\\to\\ai-portfolio\\1_mcp_server\\server.py"],
-      "env": { "PLAUSI_DATA_DIR": "C:\\path\\to\\your\\data" }
-    }
-  }
-}
+To use it in Claude Desktop on Windows, fully quit Claude (from the system tray), then run:
 ```
+..\.venv\Scripts\python add_to_claude_desktop.py
+```
+The script finds Claude's config file, saves a backup, and adds the `plausi` server without touching the app's other settings. Editing by hand is risky, because the same file holds the app's own settings, and its location depends on how Claude was installed.
+
 Then restart Claude and ask: "Check deposit_report.csv for data-quality problems."
 
 ## Design choices worth explaining in an interview
@@ -41,6 +35,6 @@ Then restart Claude and ask: "Check deposit_report.csv for data-quality problems
 - **`suggest_rules` only suggests.** A pattern in today's file isn't proof of a business rule.
 
 ## Limits
-- Tested on Linux with mcp 2.3. I haven't run the Claude Desktop setup on Windows.
+- Tested on Linux and in Claude Desktop on Windows, with mcp 2.3.
 - `check_rules` returns row numbers, not cell values. `profile_file` does return example values, which an AI client will see, so don't point it at real customer data without approval.
 - Not connected to the Plausi app code.

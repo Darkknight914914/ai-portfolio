@@ -100,3 +100,15 @@ def test_live_flow_with_a_fake_model(tmp_path):
     assert summary["bullets"] == 4
     assert summary["claim_flags"] == 0
     assert len((tmp_path / "o.jsonl").read_text().splitlines()) == summary["runs"]
+
+
+def test_v2_prompt_has_the_new_rules():
+    prompt = live_eval.tailor_prompt(CASE, "v2")
+    assert "never move a fact to a different job" in prompt and "[r0q1]" in prompt
+
+
+def test_v2_guard_keeps_only_cited_keywords():
+    raw = copy.deepcopy(CASE["clean"])
+    raw["matched"] = [{"keyword": "SQL", "facts": ["r0q0"]}, {"keyword": "Excel", "facts": ["cv"]},
+                      {"keyword": "Tableau", "facts": []}, {"keyword": "Python", "facts": ["r9q9"]}, "stray"]
+    assert live_eval.v2_guard(CASE, raw)["matched"] == ["SQL", "Excel"]

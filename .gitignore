@@ -4,4 +4,4 @@ __pycache__/
 venv/
 .env
 *.npz
-4_evals/live_outputs.jsonl
+4_evals/live_outputs*.jsonl
